@@ -33,6 +33,13 @@
 #define ID_STATIC_LONGTERM 111
 #define ID_GROUPBOX_INPUT 112
 
+// 动画相关的定时器ID
+#define ID_TIMER_FADE_IN 1001
+#define ID_TIMER_ADD_BTN_CLICK 1002
+#define ID_TIMER_DEL_BTN_CLICK 1003
+#define ID_TIMER_LIST_ANIMATION 1004
+#define ID_TIMER_HOVER_EFFECT 1005
+
 // 现代配色方案 - 更清新的颜色
 #define COLOR_BG_MAIN       RGB(245, 247, 251)    // 主背景 - 淡灰蓝
 #define COLOR_BG_CARD       RGB(255, 255, 255)    // 卡片背景 - 纯白
@@ -101,6 +108,118 @@ void AddTask();
 void DeleteTask();
 bool IsSameDate(SYSTEMTIME t1, SYSTEMTIME t2);
 int CompareDates(SYSTEMTIME t1, SYSTEMTIME t2);
+
+// ===== 动画系统全局变量 =====
+// 窗口淡入动画
+int fadeInStep = 0;
+int fadeInMaxSteps = 20;
+
+// 按钮点击动画状态
+struct {
+    bool isAnimating;
+    int animationStep;
+    int maxSteps;
+} addBtnClickAnim = { false, 0, 15 };
+
+struct {
+    bool isAnimating;
+    int animationStep;
+    int maxSteps;
+} delBtnClickAnim = { false, 0, 15 };
+
+// 列表项动画
+int listAnimationIndex = 0;
+int maxListAnimationIndex = 0;
+
+// 输入框焦点效果
+struct {
+    HWND hwnd;
+    bool hasFocus;
+    int focusAlpha;
+} editFocusAnim = { NULL, false, 0 };
+
+// 动画辅助函数 - 线性插值
+float Lerp(float a, float b, float t) {
+    return a + (b - a) * t;
+}
+
+// 动画辅助函数 - 缓动函数（缓出）
+float EaseOutQuad(float t) {
+    return 1.0f - (1.0f - t) * (1.0f - t);
+}
+
+// 绘制具有透明度的文字
+void DrawTransparentText(HDC hdc, LPCTSTR text, RECT* prc, COLORREF color, int alpha, HFONT hFont) {
+    // 创建透明背景的DC
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hbmMem = CreateCompatibleBitmap(hdc, prc->right - prc->left, prc->bottom - prc->top);
+    HBITMAP hbmOld = SelectObject(hdcMem, hbmMem);
+
+    // 填充白色背景
+    RECT rcMem = { 0, 0, prc->right - prc->left, prc->bottom - prc->top };
+    FillRect(hdcMem, &rcMem, GetStockObject(WHITE_BRUSH));
+
+    // 绘制文字
+    SetBkMode(hdcMem, TRANSPARENT);
+    SetTextColor(hdcMem, color);
+    HFONT hOldFont = SelectObject(hdcMem, hFont);
+    DrawText(hdcMem, text, -1, &rcMem, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    SelectObject(hdcMem, hOldFont);
+
+    // Alpha合成（简化版 - 实际需要更复杂的处理）
+    SelectObject(hdcMem, hbmOld);
+    DeleteObject(hbmMem);
+    DeleteDC(hdcMem);
+}
+
+// 绘制带阴影的圆角矩形
+void DrawShadowRoundRect(HDC hdc, RECT* prc, int radius, COLORREF color) {
+    // 绘制阴影 (浅灰色，偏下右)
+    RECT rcShadow = { prc->left + 2, prc->top + 2, prc->right + 2, prc->bottom + 2 };
+    HBRUSH hShadowBrush = CreateSolidBrush(RGB(200, 200, 200));
+    HPEN hShadowPen = CreatePen(PS_SOLID, 0, RGB(200, 200, 200));
+    HBRUSH hOldBrush = SelectObject(hdc, hShadowBrush);
+    HPEN hOldPen = SelectObject(hdc, hShadowPen);
+    RoundRect(hdc, rcShadow.left, rcShadow.top, rcShadow.right, rcShadow.bottom, radius, radius);
+    SelectObject(hdc, hOldBrush);
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hShadowBrush);
+    DeleteObject(hShadowPen);
+
+    // 绘制主体
+    HBRUSH hBrush = CreateSolidBrush(color);
+    HPEN hPen = CreatePen(PS_SOLID, 0, color);
+    hOldBrush = SelectObject(hdc, hBrush);
+    hOldPen = SelectObject(hdc, hPen);
+    RoundRect(hdc, prc->left, prc->top, prc->right, prc->bottom, radius, radius);
+    SelectObject(hdc, hOldBrush);
+    SelectObject(hdc, hOldPen);
+    DeleteObject(hBrush);
+    DeleteObject(hPen);
+}
+
+// 计算带动画的按钮缩放尺寸
+void GetAnimatedButtonRect(RECT* prcOrig, RECT* prcResult, int animStep, int maxSteps) {
+    // 动画进度 0.0 ~ 1.0
+    float progress = (float)animStep / maxSteps;
+
+    // 缩放因子：从1.05到1.0（点击时缩放到原大小的95%）
+    float scale = 1.05f - progress * 0.05f;
+
+    int width = prcOrig->right - prcOrig->left;
+    int height = prcOrig->bottom - prcOrig->top;
+
+    int centerX = prcOrig->left + width / 2;
+    int centerY = prcOrig->top + height / 2;
+
+    int newWidth = (int)(width * scale);
+    int newHeight = (int)(height * scale);
+
+    prcResult->left = centerX - newWidth / 2;
+    prcResult->top = centerY - newHeight / 2;
+    prcResult->right = prcResult->left + newWidth;
+    prcResult->bottom = prcResult->top + newHeight;
+}
 
 // Custom drawing for buttons
 LRESULT CALLBACK AddBtnSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -581,9 +700,52 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             switch (LOWORD(wParam)) {
                 case ID_BTN_ADD:
                     AddTask();
+                    // 启动添加按钮点击动画
+                    addBtnClickAnim.isAnimating = true;
+                    addBtnClickAnim.animationStep = 0;
+                    SetTimer(hwnd, ID_TIMER_ADD_BTN_CLICK, 20, NULL);
                     break;
                 case ID_BTN_DEL:
                     DeleteTask();
+                    // 启动删除按钮点击动画
+                    delBtnClickAnim.isAnimating = true;
+                    delBtnClickAnim.animationStep = 0;
+                    SetTimer(hwnd, ID_TIMER_DEL_BTN_CLICK, 20, NULL);
+                    break;
+            }
+        }
+        break;
+
+        case WM_TIMER: {
+            switch (wParam) {
+                // 添加按钮点击动画定时器
+                case ID_TIMER_ADD_BTN_CLICK:
+                    addBtnClickAnim.animationStep++;
+                    if (addBtnClickAnim.animationStep >= addBtnClickAnim.maxSteps) {
+                        addBtnClickAnim.isAnimating = false;
+                        KillTimer(hwnd, ID_TIMER_ADD_BTN_CLICK);
+                    }
+                    InvalidateRect(hBtnAdd, NULL, FALSE);
+                    break;
+
+                // 删除按钮点击动画定时器
+                case ID_TIMER_DEL_BTN_CLICK:
+                    delBtnClickAnim.animationStep++;
+                    if (delBtnClickAnim.animationStep >= delBtnClickAnim.maxSteps) {
+                        delBtnClickAnim.isAnimating = false;
+                        KillTimer(hwnd, ID_TIMER_DEL_BTN_CLICK);
+                    }
+                    InvalidateRect(hBtnDel, NULL, FALSE);
+                    break;
+
+                // 列表项入场动画定时器
+                case ID_TIMER_LIST_ANIMATION:
+                    listAnimationIndex++;
+                    if (listAnimationIndex >= maxListAnimationIndex) {
+                        KillTimer(hwnd, ID_TIMER_LIST_ANIMATION);
+                    }
+                    InvalidateRect(hListView, NULL, FALSE);
+                    InvalidateRect(hListViewLong, NULL, FALSE);
                     break;
             }
         }
