@@ -1,8 +1,236 @@
 # 👁️ 任务管理器 - Task Manager
 
+[English](#english) | [中文](#中文)
+
+---
+
+<a name="english"></a>
+## 🌍 English
+
+A feature-rich, modern Windows desktop task management application developed with native C language and Win32 API.
+
+### 🔄 Program Flowchart
+
+```mermaid
+flowchart TD
+    subgraph Startup Phase
+        A[🚀 Program Start WinMain] --> B[Enable High DPI Support]
+        B --> C[Load App Icon]
+        C --> D[Register Window Class]
+        D --> E[Create Main Window]
+        E --> F[Load Task Data LoadTasks]
+    end
+
+    subgraph Window Initialization
+        F --> G[WM_CREATE Message]
+        G --> H[Initialize Common Controls]
+        H --> I[Create Fonts and Brushes]
+        I --> J[Create Left Panel]
+        J --> K[Create Right Panel]
+        K --> L[Setup ListView Styles]
+        L --> M[Update Task List UpdateListView]
+    end
+
+    subgraph Message Loop
+        M --> N{Message Loop}
+        N -->|WM_COMMAND| O{Button Events}
+        N -->|WM_NOTIFY| P{Calendar/List Events}
+        N -->|WM_TIMER| Q[Animation Update]
+        N -->|WM_DRAWITEM| R[Custom Draw Buttons]
+        N -->|WM_DESTROY| S[Exit Program]
+    end
+
+    subgraph Task Operations
+        O -->|Add Button| T[AddTask]
+        O -->|Delete Button| U[DeleteTask]
+        T --> V[Save Data SaveTasks]
+        U --> V
+        V --> M
+    end
+
+    subgraph Calendar Interaction
+        P -->|Date Selection| W[Update selectedDate]
+        W --> M
+        P -->|List Selection| X[Highlight Task]
+    end
+
+    subgraph Animation System
+        Q --> Y{Animation Type}
+        Y -->|Button Click| Z[Update BtnClickAnim]
+        Y -->|Hover Effect| AA[Redraw Button]
+        Z --> AA
+    end
+
+    subgraph Data Persistence
+        AB[(tasks.dat)] -->|Read| F
+        V -->|Write| AB
+    end
+
+    S --> AC[🔚 Program End]
+```
+
+### 🔄 Module Interaction Diagram
+
+```mermaid
+flowchart LR
+    subgraph Entry
+        A[main.c]
+    end
+
+    subgraph Header
+        B[task_manager.h]
+    end
+
+    subgraph Function Modules
+        C[window_proc.c<br/>Window Message Handler]
+        D[task_manager.c<br/>Task Management]
+        E[animation.c<br/>Animation System]
+        F[ui_controls.c<br/>UI Controls]
+    end
+
+    subgraph External
+        G[(tasks.dat)]
+        H[Win32 API]
+    end
+
+    A --> B
+    A --> C
+    C --> B
+    C --> D
+    C --> E
+    C --> F
+    D --> B
+    D --> G
+    E --> B
+    F --> B
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+```
+
+### ✨ Features
+
+#### 📋 Core Task Management
+- **📅 Daily Task Management** - Calendar-based daily todo management
+- **📆 Medium-term Planning** - Mid-term project and goal management
+- **🎯 Long-term Goal Tracking** - Long-range planning and goal setting
+- **⭐ Priority Marking** - Important task identification
+- **🔥 Urgent Status Alerts** - Urgent task highlighting
+- **⚠️ Overdue Reminders** - Auto-detect and display overdue tasks
+
+#### 🎨 Modern UI Design
+- **💎 Material Design Style** - Fresh blue-white color scheme
+- **🎪 Rounded Card Layout** - Left-right split card design
+- **✨ Smooth Animations** - Button click and hover effects
+- **🖼️ HD Icon Support** - 256x256 custom eye icon
+- **🎯 High DPI Ready** - Support for high-resolution displays
+- **🌈 Alternating Row Colors** - ListView beautification with custom selection
+
+#### 📊 Smart Interaction
+- **📅 Visual Calendar** - Click date to view corresponding tasks
+- **📝 Real-time Editing** - Instant task addition and deletion
+- **💾 Auto Data Persistence** - Tasks auto-saved to local file
+- **🔍 Categorized View** - Separate daily and long-term task display
+
+### 🚀 Technical Highlights
+
+- **🔧 Pure C Development** - C11 standard, excellent performance
+- **🏗️ Native Win32 API** - Direct Windows API calls, fast response
+- **🎯 Modern Fonts** - Microsoft YaHei font, clear and readable
+- **💻 CMake Build System** - Cross-platform build support
+- **📦 Embedded Resources** - Icons and version info compiled into exe
+- **🎪 Theme Support** - Windows Explorer style
+- **🧩 Modular Architecture** - Code separated by function for easy maintenance
+
+### 🎨 Color Scheme
+- Main Background: Light Gray-Blue (#F5F7FB)
+- Card Background: Pure White (#FFFFFF)
+- Primary Color: Bright Blue (#3B82F6)
+- Hover Color: Deep Blue (#2563EB)
+- Danger Color: Red (#EF4444)
+
+### 🛠️ Build and Run
+
+#### System Requirements
+- Windows 10/11 or higher
+- Visual Studio 2022 or MinGW-w64
+- CMake 3.20 or higher
+
+#### Build Steps
+
+1. **Clone the project**
+   ```bash
+   git clone https://github.com/BassttElSevic/BassttProjectManage.git
+   cd BassttProjectManage
+   ```
+
+2. **Build with CMake**
+   ```bash
+   mkdir build
+   cd build
+   cmake ..
+   cmake --build . --config Release
+   ```
+
+3. **Or use the configured build directory**
+   ```bash
+   cmake --build cmake-build-debug --config Debug
+   ```
+
+#### Run the Program
+```bash
+cd cmake-build-debug
+./untitled.exe
+```
+
+### 📁 Project Structure
+
+```
+├── main.c                  # Program entry
+├── CMakeLists.txt          # CMake build configuration
+├── resource.rc             # Windows resource file
+├── README.md               # Project documentation
+│
+├── Inc/                    # Header files directory
+│   └── task_manager.h      # Main header (types, constants, declarations)
+│
+├── Src/                    # Source files directory
+│   ├── task_manager.c      # Task management core (CRUD, persistence)
+│   ├── animation.c         # Animation system (button click, easing)
+│   ├── ui_controls.c       # UI controls (button subclass, ListView)
+│   └── window_proc.c       # Window procedure (messages, controls)
+│
+├── EYE_256x256.ico         # High-res app icon
+├── EYE_128x128.ico         # Medium-size icon
+└── EYE_48x48.ico           # Small-size icon
+```
+
+### 🏗️ Module Description
+
+| Module | File | Description |
+|--------|------|-------------|
+| **Entry** | `main.c` | WinMain entry, window class registration, message loop |
+| **Header** | `Inc/task_manager.h` | Type definitions (Task, BtnClickAnim), constants, declarations |
+| **Task Manager** | `Src/task_manager.c` | Task CRUD, date comparison, file I/O |
+| **Animation** | `Src/animation.c` | Button click animation, easing functions, rounded rectangles |
+| **UI Controls** | `Src/ui_controls.c` | Button subclassing, hover effects, ListView customization |
+| **Window Proc** | `Src/window_proc.c` | Window message handling, control creation, custom drawing |
+
+### 💾 Data Storage
+
+- **Location**: `tasks.dat` file in the program directory
+- **Format**: Binary file containing task count and task details
+- **Auto-save**: Automatically saved when adding or deleting tasks
+
+---
+
+<a name="中文"></a>
+## 🇨🇳 中文
+
 一个功能丰富、界面现代化的Windows桌面任务管理应用程序，采用原生C语言和Win32 API开发。
 
-## 🔄 程序流程图
+### 🔄 程序流程图
 
 ```mermaid
 flowchart TD
@@ -62,7 +290,7 @@ flowchart TD
     S --> AC[🔚 程序结束]
 ```
 
-## 🔄 模块交互图
+### 🔄 模块交互图
 
 ```mermaid
 flowchart LR
@@ -102,9 +330,9 @@ flowchart LR
     F --> H
 ```
 
-## ✨ 特色功能
+### ✨ 特色功能
 
-### 📋 任务管理核心功能
+#### 📋 任务管理核心功能
 - **📅 每日任务管理** - 基于日历的每日待办事项管理
 - **📆 中期任务规划** - 中期项目和目标管理
 - **🎯 长期目标追踪** - 长远规划和目标设定
@@ -112,7 +340,7 @@ flowchart LR
 - **🔥 紧急状态提醒** - 紧急任务高亮显示
 - **⚠️ 逾期任务提醒** - 自动检测并显示过期未完成任务
 
-### 🎨 现代化UI设计
+#### 🎨 现代化UI设计
 - **💎 Material Design风格** - 清新的蓝白配色方案
 - **🎪 圆角卡片布局** - 左右分栏的卡片式设计
 - **✨ 平滑动画效果** - 按钮点击动画和悬停效果
@@ -120,13 +348,13 @@ flowchart LR
 - **🎯 高DPI适配** - 支持高分辨率显示器
 - **🌈 交替行颜色** - ListView美化和自定义选中状态
 
-### 📊 智能交互
+#### 📊 智能交互
 - **📅 可视化日历** - 点击日期查看对应任务
 - **📝 实时任务编辑** - 即时添加和删除任务
 - **💾 自动数据持久化** - 任务数据自动保存到本地文件
 - **🔍 分类视图** - 今日待办和长期规划分离显示
 
-## 🚀 技术特点
+### 🚀 技术特点
 
 - **🔧 纯C语言开发** - 使用C11标准，性能优异
 - **🏗️ Win32原生API** - 直接调用Windows API，响应迅速
@@ -136,12 +364,6 @@ flowchart LR
 - **🎪 主题样式支持** - 使用Windows Explorer样式
 - **🧩 模块化架构** - 代码按功能分离，便于维护和扩展
 
-## 📸 界面预览
-
-应用程序采用双栏布局设计：
-- **左侧面板**：日历选择器 + 任务输入区域
-- **右侧面板**：今日待办 + 长期规划任务列表
-
 ### 🎨 配色方案
 - 主背景：淡灰蓝 (#F5F7FB)
 - 卡片背景：纯白 (#FFFFFF) 
@@ -149,14 +371,14 @@ flowchart LR
 - 悬停色：深蓝 (#2563EB)
 - 危险色：红色 (#EF4444)
 
-## 🛠️ 构建和运行
+### 🛠️ 构建和运行
 
-### 系统要求
+#### 系统要求
 - Windows 10/11 或更高版本
 - Visual Studio 2022 或 MinGW-w64
 - CMake 3.20 或更高版本
 
-### 编译步骤
+#### 编译步骤
 
 1. **克隆项目**
    ```bash
@@ -177,13 +399,13 @@ flowchart LR
    cmake --build cmake-build-debug --config Debug
    ```
 
-### 运行程序
+#### 运行程序
 ```bash
 cd cmake-build-debug
 ./untitled.exe
 ```
 
-## 📁 项目结构
+### 📁 项目结构
 
 ```
 ├── main.c                  # 程序入口
@@ -205,7 +427,7 @@ cd cmake-build-debug
 └── EYE_48x48.ico           # 小尺寸图标
 ```
 
-## 🏗️ 模块说明
+### 🏗️ 模块说明
 
 | 模块 | 文件 | 功能描述 |
 |------|------|----------|
@@ -216,25 +438,28 @@ cd cmake-build-debug
 | **UI控件** | `Src/ui_controls.c` | 按钮子类化处理、悬停效果、ListView自定义 |
 | **窗口处理** | `Src/window_proc.c` | 窗口消息处理、控件创建与布局、自绘按钮 |
 
-## 💾 数据存储
+### 💾 数据存储
 
 - **存储位置**：程序运行目录下的 `tasks.dat` 文件
 - **存储格式**：二进制文件，包含任务数量和任务详情
 - **自动保存**：添加或删除任务时自动保存
 
-## 📝 更新日志
+---
 
-### v1.1.0 (2026-01-18)
-- **🔧 代码重构** - 将单文件架构重构为模块化多文件结构
-- **🐛 Bug修复** - 修复动画结构体的链接错误（LNK2019）
-- **📦 类型定义优化** - 使用 typedef 定义 `BtnClickAnim` 和 `EditFocusAnim` 类型
+## 📝 Changelog / 更新日志
+
+### v1.1.0 (2025-01-18)
+- **🔧 Code Refactoring / 代码重构** - Refactored from single-file to modular multi-file structure / 将单文件架构重构为模块化多文件结构
+- **🐛 Bug Fix / Bug修复** - Fixed animation struct linking error (LNK2019) / 修复动画结构体的链接错误（LNK2019）
+- **📦 Type Definition Optimization / 类型定义优化** - Used typedef for `BtnClickAnim` and `EditFocusAnim` / 使用 typedef 定义 `BtnClickAnim` 和 `EditFocusAnim` 类型
+- **📄 Documentation / 文档更新** - Added bilingual README with Mermaid diagrams / 添加中英双语README和Mermaid流程图
 
 ### v1.0.0
-- 初始版本发布
-- 完整的任务管理功能
-- 现代化UI界面
-- 动画效果支持
+- Initial release / 初始版本发布
+- Complete task management features / 完整的任务管理功能
+- Modern UI interface / 现代化UI界面
+- Animation effects support / 动画效果支持
 
-## 📄 许可证
+## 📄 License / 许可证
 
 MIT License
