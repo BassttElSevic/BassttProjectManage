@@ -2,6 +2,106 @@
 
 一个功能丰富、界面现代化的Windows桌面任务管理应用程序，采用原生C语言和Win32 API开发。
 
+## 🔄 程序流程图
+
+```mermaid
+flowchart TD
+    subgraph 启动阶段
+        A[🚀 程序启动 WinMain] --> B[启用高DPI支持]
+        B --> C[加载应用图标]
+        C --> D[注册窗口类]
+        D --> E[创建主窗口]
+        E --> F[加载任务数据 LoadTasks]
+    end
+
+    subgraph 窗口初始化
+        F --> G[WM_CREATE 消息]
+        G --> H[初始化通用控件]
+        H --> I[创建字体和画刷]
+        I --> J[创建左侧面板]
+        J --> K[创建右侧面板]
+        K --> L[设置ListView样式]
+        L --> M[更新任务列表 UpdateListView]
+    end
+
+    subgraph 消息循环
+        M --> N{消息循环}
+        N -->|WM_COMMAND| O{按钮事件}
+        N -->|WM_NOTIFY| P{日历/列表事件}
+        N -->|WM_TIMER| Q[动画更新]
+        N -->|WM_DRAWITEM| R[自绘按钮]
+        N -->|WM_DESTROY| S[退出程序]
+    end
+
+    subgraph 任务操作
+        O -->|添加按钮| T[AddTask]
+        O -->|删除按钮| U[DeleteTask]
+        T --> V[保存数据 SaveTasks]
+        U --> V
+        V --> M
+    end
+
+    subgraph 日历交互
+        P -->|日期选择| W[更新 selectedDate]
+        W --> M
+        P -->|列表选中| X[高亮显示任务]
+    end
+
+    subgraph 动画系统
+        Q --> Y{动画类型}
+        Y -->|按钮点击| Z[更新 BtnClickAnim]
+        Y -->|悬停效果| AA[重绘按钮]
+        Z --> AA
+    end
+
+    subgraph 数据持久化
+        AB[(tasks.dat)] -->|读取| F
+        V -->|写入| AB
+    end
+
+    S --> AC[🔚 程序结束]
+```
+
+## 🔄 模块交互图
+
+```mermaid
+flowchart LR
+    subgraph 入口
+        A[main.c]
+    end
+
+    subgraph 头文件
+        B[task_manager.h]
+    end
+
+    subgraph 功能模块
+        C[window_proc.c<br/>窗口消息处理]
+        D[task_manager.c<br/>任务管理]
+        E[animation.c<br/>动画系统]
+        F[ui_controls.c<br/>UI控件]
+    end
+
+    subgraph 外部
+        G[(tasks.dat)]
+        H[Win32 API]
+    end
+
+    A --> B
+    A --> C
+    C --> B
+    C --> D
+    C --> E
+    C --> F
+    D --> B
+    D --> G
+    E --> B
+    F --> B
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+```
+
 ## ✨ 特色功能
 
 ### 📋 任务管理核心功能
