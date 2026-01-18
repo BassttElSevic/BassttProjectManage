@@ -119,11 +119,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 hwnd, (HMENU)ID_COMBO_TYPE, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             curY += inputH + gap; // Combobox 高度由系统决定，但布局上占据空间
 
-            hChkImp = CreateWindow(L"BUTTON", L" ⭐ 重要任务",
+            // 重要任务复选框（左边）- 使用普通 Unicode 星星
+            hChkImp = CreateWindow(L"BUTTON", L" ★ 重要任务",
                 WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP,
                 sbX, curY, sbW / 2, 28,
                 hwnd, (HMENU)ID_CHK_IMP, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
 
+            // 紧急任务复选框（右边）
             hChkUrg = CreateWindow(L"BUTTON", L" 🔥 紧急任务",
                 WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP,
                 sbX + sbW / 2, curY, sbW / 2, 28,
@@ -200,19 +202,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             LVCOLUMN lvc;
             lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 
-            lvc.iSubItem = 0; lvc.pszText = L"任务描述"; lvc.cx = 260; lvc.fmt = LVCFMT_LEFT;
+            lvc.iSubItem = 0; lvc.pszText = L"任务描述"; lvc.cx = 240; lvc.fmt = LVCFMT_LEFT;
             ListView_InsertColumn(hListView, 0, &lvc); ListView_InsertColumn(hListViewLong, 0, &lvc);
 
-            lvc.iSubItem = 1; lvc.pszText = L"类型"; lvc.cx = 90;
+            lvc.iSubItem = 1; lvc.pszText = L"类型"; lvc.cx = 80;
             ListView_InsertColumn(hListView, 1, &lvc); ListView_InsertColumn(hListViewLong, 1, &lvc);
 
-            lvc.iSubItem = 2; lvc.pszText = L"★"; lvc.cx = 40; lvc.fmt = LVCFMT_CENTER;
+            lvc.iSubItem = 2; lvc.pszText = L"重要"; lvc.cx = 50; lvc.fmt = LVCFMT_CENTER;
             ListView_InsertColumn(hListView, 2, &lvc); ListView_InsertColumn(hListViewLong, 2, &lvc);
 
-            lvc.iSubItem = 3; lvc.pszText = L"🔥"; lvc.cx = 40;
+            lvc.iSubItem = 3; lvc.pszText = L"紧急"; lvc.cx = 50;
             ListView_InsertColumn(hListView, 3, &lvc); ListView_InsertColumn(hListViewLong, 3, &lvc);
 
-            lvc.iSubItem = 4; lvc.pszText = L"日期"; lvc.cx = 90;
+            lvc.iSubItem = 4; lvc.pszText = L"日期"; lvc.cx = 100;
             ListView_InsertColumn(hListView, 4, &lvc); ListView_InsertColumn(hListViewLong, 4, &lvc);
 
             // 应用字体

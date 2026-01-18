@@ -1,0 +1,8 @@
+﻿git : To https://github.com/BassttElSevic/BassttProjectManage.git
+所在位置 行:1 字符: 121
++ ... te README.md to bilingual version"; git push origin main 2>&1 | Out-F ...
++                                         ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (To https://gith...ojectManage.git:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+   8cbd1d3..a899658  main -> main

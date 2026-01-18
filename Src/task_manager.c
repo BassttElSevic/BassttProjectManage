@@ -82,7 +82,8 @@ void UpdateListView() {
                 ListView_SetItemText(hListView, idx, 1, (LPWSTR)TYPE_STRINGS[tasks[i].type]);
             }
 
-            ListView_SetItemText(hListView, idx, 2, tasks[i].is_important ? L"⭐" : L"");
+            // 星星使用普通 Unicode 字符，火苗使用 emoji
+            ListView_SetItemText(hListView, idx, 2, tasks[i].is_important ? L"★" : L"");
             ListView_SetItemText(hListView, idx, 3, tasks[i].is_urgent ? L"🔥" : L"");
 
             StringCchPrintf(textBuffer, 256, L"%04d-%02d-%02d",
@@ -100,7 +101,8 @@ void UpdateListView() {
             int idx = ListView_InsertItem(hListViewLong, &lvi);
 
             ListView_SetItemText(hListViewLong, idx, 1, (LPWSTR)TYPE_STRINGS[tasks[i].type]);
-            ListView_SetItemText(hListViewLong, idx, 2, tasks[i].is_important ? L"⭐" : L"");
+            // 星星使用普通 Unicode 字符，火苗使用 emoji
+            ListView_SetItemText(hListViewLong, idx, 2, tasks[i].is_important ? L"★" : L"");
             ListView_SetItemText(hListViewLong, idx, 3, tasks[i].is_urgent ? L"🔥" : L"");
 
             StringCchPrintf(textBuffer, 256, L"%04d-%02d-%02d",
@@ -116,7 +118,7 @@ void AddTask() {
         return;
     }
 
-    Task newTask;
+    Task newTask = {0};  // 初始化结构体为零
     GetWindowText(hEditDesc, newTask.description, 256);
 
     if (wcslen(newTask.description) == 0) {
@@ -125,8 +127,13 @@ void AddTask() {
     }
 
     newTask.date = selectedDate;
-    newTask.is_important = (SendMessage(hChkImp, BM_GETCHECK, 0, 0) == BST_CHECKED);
-    newTask.is_urgent = (SendMessage(hChkUrg, BM_GETCHECK, 0, 0) == BST_CHECKED);
+
+    // 获取复选框状态
+    LRESULT impCheck = SendMessage(hChkImp, BM_GETCHECK, 0, 0);
+    LRESULT urgCheck = SendMessage(hChkUrg, BM_GETCHECK, 0, 0);
+
+    newTask.is_important = (impCheck == BST_CHECKED);
+    newTask.is_urgent = (urgCheck == BST_CHECKED);
     newTask.type = (TaskType)SendMessage(hComboType, CB_GETCURSEL, 0, 0);
 
     tasks[task_count++] = newTask;
