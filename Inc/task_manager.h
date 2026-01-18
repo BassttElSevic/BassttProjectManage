@@ -93,17 +93,26 @@ extern WNDPROC wpOrigAddBtnProc, wpOrigDelBtnProc;
 
 // 动画系统全局变量
 extern int fadeInStep, fadeInMaxSteps;
-extern struct {
+
+// 按钮点击动画结构体类型
+typedef struct {
     bool isAnimating;
     int animationStep;
     int maxSteps;
-} addBtnClickAnim, delBtnClickAnim;
+} BtnClickAnim;
+
+extern BtnClickAnim addBtnClickAnim, delBtnClickAnim;
+
 extern int listAnimationIndex, maxListAnimationIndex;
-extern struct {
+
+// 编辑框焦点动画结构体类型
+typedef struct {
     HWND hwnd;
     bool hasFocus;
     int focusAlpha;
-} editFocusAnim;
+} EditFocusAnim;
+
+extern EditFocusAnim editFocusAnim;
 
 // Function declarations
 void LoadTasks();

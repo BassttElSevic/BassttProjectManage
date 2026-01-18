@@ -4,29 +4,13 @@
 int fadeInStep = 0;
 int fadeInMaxSteps = 20;
 
-// 按钮点击动画状态
-struct {
-    bool isAnimating;
-    int animationStep;
-    int maxSteps;
-} addBtnClickAnim = { false, 0, 15 };
-
-struct {
-    bool isAnimating;
-    int animationStep;
-    int maxSteps;
-} delBtnClickAnim = { false, 0, 15 };
+// 按钮点击动画
+BtnClickAnim addBtnClickAnim = {false, 0, 10};
+BtnClickAnim delBtnClickAnim = {false, 0, 10};
 
 // 列表项动画
 int listAnimationIndex = 0;
 int maxListAnimationIndex = 0;
-
-// 输入框焦点效果
-struct {
-    HWND hwnd;
-    bool hasFocus;
-    int focusAlpha;
-} editFocusAnim = { NULL, false, 0 };
 
 // 动画辅助函数 - 线性插值
 float Lerp(float a, float b, float t) {
