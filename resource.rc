@@ -1,7 +1,7 @@
 #include <windows.h>
 
-// 定义图标资源
-IDI_MAIN_ICON ICON "EYE_48x48.ico"
+// 定义图标资源 - 使用256x256的高清图标
+IDI_MAIN_ICON ICON "EYE_256x256.ico"
 
 // 版本信息
 VS_VERSION_INFO VERSIONINFO
