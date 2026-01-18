@@ -47,6 +47,8 @@
 #define COLOR_ACCENT_GREEN  RGB(34, 197, 94)      // 强调色 - 绿色
 #define COLOR_ACCENT_ORANGE RGB(249, 115, 22)     // 强调色 - 橙色
 #define COLOR_HEADER_BG     RGB(59, 130, 246)     // 标题栏背景
+#define COLOR_SELECTION_BG  RGB(219, 234, 254)    // 选中项背景 - 浅蓝
+#define COLOR_SELECTION_TXT RGB(30, 58, 138)      // 选中项文字 - 深蓝
 
 // File to save tasks
 const TCHAR* SAVE_FILE = L"tasks.dat";
@@ -97,6 +99,8 @@ void SaveTasks();
 void UpdateListView();
 void AddTask();
 void DeleteTask();
+bool IsSameDate(SYSTEMTIME t1, SYSTEMTIME t2);
+int CompareDates(SYSTEMTIME t1, SYSTEMTIME t2);
 
 // Custom drawing for buttons
 LRESULT CALLBACK AddBtnSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -230,6 +234,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                                 DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
                                 CLEARTYPE_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"微软雅黑");
 
+            // 启用 Explorer 样式，让 ListView 看起来更现代 (需要 comctl32.dll v6)
+            SetWindowTheme(hwnd, L"Explorer", NULL);
+
             // === 布局参数 ===
             // 窗口分两栏：左侧卡片(SideBar) 和 右侧卡片(Content)
             // Left Card: x=20, w=340
@@ -286,33 +293,34 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             int curY = 90 + calHeight + 25; // 动态起始Y坐标
             int labelH = 20;
-            int inputH = 30;
-            int gap = 15;
+            int inputH = 32;  // 稍微增高输入框
+            int gap = 18;     // 增加间距
 
-            HWND hLabelDesc = CreateWindow(L"STATIC", L"任务描述",
+            HWND hLabelDesc = CreateWindow(L"STATIC", L"📝 任务描述",
                 WS_CHILD | WS_VISIBLE | SS_LEFT,
                 sbX, curY, sbW, labelH,
                 hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-            curY += labelH + 5;
+            curY += labelH + 8;
 
-            // 使用 WS_BORDER 替代 WS_EX_CLIENTEDGE 以获得更扁平的现代感
-            hEditDesc = CreateWindowEx(WS_EX_STATICEDGE, L"EDIT", L"",
-                WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | WS_TABSTOP,
+            // 使用 WS_BORDER 替代 WS_EX_STATICEDGE 以获得更扁平的现代感
+            // 使用扁平风格：去掉 WS_EX_STATICEDGE/CLIENTEDGE，使用 WS_BORDER
+            hEditDesc = CreateWindowEx(0, L"EDIT", L"",
+                WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | WS_TABSTOP | WS_BORDER,
                 sbX, curY, sbW, inputH,
                 hwnd, (HMENU)ID_EDIT_DESC, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
             curY += inputH + gap;
 
-            HWND hLabelType = CreateWindow(L"STATIC", L"任务类型",
+            HWND hLabelType = CreateWindow(L"STATIC", L"📂 任务类型",
                 WS_CHILD | WS_VISIBLE | SS_LEFT,
                 sbX, curY, sbW, labelH,
                 hwnd, NULL, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-            curY += labelH + 5;
+            curY += labelH + 8;
 
             hComboType = CreateWindow(WC_COMBOBOX, L"",
                 WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | WS_TABSTOP,
                 sbX, curY, sbW, 150,
                 hwnd, (HMENU)ID_COMBO_TYPE, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-            curY += inputH + gap;
+            curY += inputH + gap; // Combobox 高度由系统决定，但布局上占据空间
 
             hChkImp = CreateWindow(L"BUTTON", L" ⭐ 重要任务",
                 WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP,
@@ -323,7 +331,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | WS_TABSTOP,
                 sbX + sbW / 2, curY, sbW / 2, 28,
                 hwnd, (HMENU)ID_CHK_URG, ((LPCREATESTRUCT)lParam)->hInstance, NULL);
-            curY += 40;
+            curY += 50; // 按钮区域下移一点
 
             // 添加ComboBox选项
             SendMessage(hComboType, CB_ADDSTRING, 0, (LPARAM)L"📅 每日任务");
@@ -383,9 +391,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             ListView_SetExtendedListViewStyle(hListView, exStyle);
             ListView_SetExtendedListViewStyle(hListViewLong, exStyle);
 
+            // 设置 Explorer 样式主题
+            SetWindowTheme(hListView, L"Explorer", NULL);
+            SetWindowTheme(hListViewLong, L"Explorer", NULL);
+
             // 增加行高
-            SetListViewRowHeight(hListView, 30);
-            SetListViewRowHeight(hListViewLong, 30);
+            SetListViewRowHeight(hListView, 36);
+            SetListViewRowHeight(hListViewLong, 36);
 
             // 设置ListView列
             LVCOLUMN lvc;
@@ -468,11 +480,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         // CheckBox 实际上是 Button，但也可能发送 CTLCOLORSTATIC，
         // 这里需要小心，CheckBox 在我们的设计中是在白色卡片上的
 
+        // 增加对 Edit Control 的颜色控制，使其背景更白，文字清晰
         case WM_CTLCOLOREDIT: {
             HDC hdc = (HDC)wParam;
             SetBkColor(hdc, RGB(255, 255, 255));
             SetTextColor(hdc, COLOR_TEXT_PRIMARY);
-            return (LRESULT)hBrushCard;
+            // 返回白色画刷
+            return (LRESULT)GetStockObject(WHITE_BRUSH);
         }
 
         case WM_CTLCOLORBTN: {
@@ -485,10 +499,47 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
         case WM_NOTIFY: {
             LPNMHDR pHdr = (LPNMHDR)lParam;
-            if (pHdr->idFrom == ID_CALENDAR && pHdr->code == MCN_SELECT) {
-                LPNMSELCHANGE pSelChange = (LPNMSELCHANGE)lParam;
-                selectedDate = pSelChange->stSelStart;
-                UpdateListView();
+            if (pHdr->idFrom == ID_CALENDAR) {
+                if (pHdr->code == MCN_SELECT) {
+                    LPNMSELCHANGE pSelChange = (LPNMSELCHANGE)lParam;
+                    selectedDate = pSelChange->stSelStart;
+                    UpdateListView();
+                }
+                else if (pHdr->code == MCN_GETDAYSTATE) {
+                    LPNMDAYSTATE pDayState = (LPNMDAYSTATE)lParam;
+                    SYSTEMTIME stProbe = pDayState->stStart;
+
+                    // 遍历请求的月份数 (通常是1或3)
+                    for (int i = 0; i < pDayState->cDayState; i++) {
+                        MONTHDAYSTATE state = 0;
+
+                        // 检查该月的每一天
+                        SYSTEMTIME stCheck;
+                        stCheck.wYear = stProbe.wYear;
+                        stCheck.wMonth = stProbe.wMonth;
+
+                        for (int day = 1; day <= 31; day++) {
+                            stCheck.wDay = day;
+
+                            // 检查这一天是否有任务
+                            for (int k = 0; k < task_count; k++) {
+                                if (tasks[k].type == TYPE_DAILY && IsSameDate(tasks[k].date, stCheck)) {
+                                    state |= (1 << (day - 1));
+                                    break;
+                                }
+                            }
+                        }
+
+                        pDayState->prgDayState[i] = state;
+
+                        // 移动到下一个月
+                        stProbe.wMonth++;
+                        if (stProbe.wMonth > 12) {
+                            stProbe.wMonth = 1;
+                            stProbe.wYear++;
+                        }
+                    }
+                }
             }
             // ListView 自定义绘制 - 更美观的交替行颜色
             if (pHdr->code == NM_CUSTOMDRAW) {
@@ -498,12 +549,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         case CDDS_PREPAINT:
                             return CDRF_NOTIFYITEMDRAW;
                         case CDDS_ITEMPREPAINT:
-                            if (lpcd->nmcd.dwItemSpec % 2 == 0) {
-                                lpcd->clrTextBk = RGB(248, 250, 252);  // 更淡的灰色
-                            } else {
-                                lpcd->clrTextBk = RGB(255, 255, 255);
+                            // 处理选中状态
+                            if (lpcd->nmcd.uItemState & CDIS_SELECTED) {
+                                // 自定义选中颜色
+                                lpcd->clrTextBk = COLOR_SELECTION_BG;
+                                lpcd->clrText = COLOR_SELECTION_TXT;
+
+                                // 清除选中标记，防止系统默认的深蓝色覆盖我们的颜色
+                                // 注意：这会失去原生的焦点矩形，但颜色看起来更好
+                                lpcd->nmcd.uItemState &= ~CDIS_SELECTED;
                             }
-                            lpcd->clrText = COLOR_TEXT_PRIMARY;
+                            // 处理非选中的交替行颜色
+                            else {
+                                if (lpcd->nmcd.dwItemSpec % 2 == 0) {
+                                    lpcd->clrTextBk = RGB(248, 250, 252);  // 更淡的灰色
+                                } else {
+                                    lpcd->clrTextBk = RGB(255, 255, 255);
+                                }
+                                lpcd->clrText = COLOR_TEXT_PRIMARY;
+                            }
                             return CDRF_NEWFONT;
                         default:
                             break;
@@ -569,15 +633,44 @@ bool IsSameDate(SYSTEMTIME t1, SYSTEMTIME t2) {
     return t1.wYear == t2.wYear && t1.wMonth == t2.wMonth && t1.wDay == t2.wDay;
 }
 
+// 比较日期函数：-1 if t1 < t2, 0 if t1 == t2, 1 if t1 > t2
+int CompareDates(SYSTEMTIME t1, SYSTEMTIME t2) {
+    if (t1.wYear != t2.wYear) return t1.wYear < t2.wYear ? -1 : 1;
+    if (t1.wMonth != t2.wMonth) return t1.wMonth < t2.wMonth ? -1 : 1;
+    if (t1.wDay != t2.wDay) return t1.wDay < t2.wDay ? -1 : 1;
+    return 0;
+}
+
 void UpdateListView() {
     ListView_DeleteAllItems(hListView);
     ListView_DeleteAllItems(hListViewLong);
 
     TCHAR textBuffer[256];
+    SYSTEMTIME today;
+    GetLocalTime(&today);
+
+    // 检查是否选择了今天
+    bool isSelectedToday = IsSameDate(selectedDate, today);
 
     for (int i = 0; i < task_count; i++) {
+        // 每日任务逻辑优化：
+        // 1. 如果任务日期是当前选中日期，显示
+        // 2. 如果选中了"今天"，且任务是过去的（逾期未完成），也显示出来，避免遗漏
+        bool showInDaily = false;
+        bool isOverdue = false;
+
+        if (tasks[i].type == TYPE_DAILY) {
+            if (IsSameDate(tasks[i].date, selectedDate)) {
+                showInDaily = true;
+            } else if (isSelectedToday && CompareDates(tasks[i].date, today) < 0) {
+                // 只有本日视图才显示逾期任务
+                showInDaily = true;
+                isOverdue = true;
+            }
+        }
+
         // 每日任务：显示在选中日期对应的上方列表
-        if (tasks[i].type == TYPE_DAILY && IsSameDate(tasks[i].date, selectedDate)) {
+        if (showInDaily) {
             LVITEM lvi;
             lvi.mask = LVIF_TEXT | LVIF_PARAM;
             lvi.iItem = ListView_GetItemCount(hListView);
@@ -586,7 +679,12 @@ void UpdateListView() {
             lvi.lParam = i;
             int idx = ListView_InsertItem(hListView, &lvi);
 
-            ListView_SetItemText(hListView, idx, 1, (LPWSTR)TYPE_STRINGS[tasks[i].type]);
+            if (isOverdue) {
+                ListView_SetItemText(hListView, idx, 1, L"⚠️ 逾期");
+            } else {
+                ListView_SetItemText(hListView, idx, 1, (LPWSTR)TYPE_STRINGS[tasks[i].type]);
+            }
+
             ListView_SetItemText(hListView, idx, 2, tasks[i].is_important ? L"⭐" : L"");
             ListView_SetItemText(hListView, idx, 3, tasks[i].is_urgent ? L"🔥" : L"");
 
@@ -640,6 +738,9 @@ void AddTask() {
     SetWindowText(hEditDesc, L"");
     SendMessage(hChkImp, BM_SETCHECK, BST_UNCHECKED, 0);
     SendMessage(hChkUrg, BM_SETCHECK, BST_UNCHECKED, 0);
+
+    // 刷新日历以显示新的粗体日期
+    InvalidateRect(hCalendar, NULL, TRUE);
 
     UpdateListView();
     SaveTasks();
