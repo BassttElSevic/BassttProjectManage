@@ -7,7 +7,8 @@ if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
-add_executable(untitled WIN32 main.c)
+# 添加资源文件
+add_executable(untitled WIN32 main.c resource.rc)
 
 if(WIN32)
     target_link_libraries(untitled comctl32)

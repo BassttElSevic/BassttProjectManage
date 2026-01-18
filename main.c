@@ -18,6 +18,9 @@
 #pragma comment(lib, "uxtheme.lib")
 #pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+// 定义资源ID
+#define IDI_MAIN_ICON 101
+
 // Global constants
 #define MAX_TASKS 1000
 #define ID_CALENDAR 101
@@ -954,6 +957,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     const TCHAR CLASS_NAME[] = L"TaskManagerClass";
 
+    // 从资源中加载嵌入的图标 - 这样图标就直接在exe文件中了
+    HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_MAIN_ICON));
+
     WNDCLASS wc = { };
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = GetModuleHandle(NULL);
@@ -961,6 +967,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wc.hbrBackground = CreateSolidBrush(COLOR_BG_MAIN);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.style = CS_HREDRAW | CS_VREDRAW;
+    // 设置嵌入的图标，如果加载失败则使用默认图标
+    wc.hIcon = hIcon ? hIcon : LoadIcon(NULL, IDI_APPLICATION);
 
     RegisterClass(&wc);
 
@@ -975,7 +983,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     HWND hwnd = CreateWindowEx(
         WS_EX_APPWINDOW,
         CLASS_NAME,
-        L"✨ 任务管理器 - Task Manager",
+        L"👁️ 任务管理器 - Task Manager",
         WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         posX, posY, winW, winH,
         NULL,
@@ -988,6 +996,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         return 0;
     }
 
+    // 设置窗口图标和任务栏图标
+    if (hIcon) {
+        SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+        SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+    }
+
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
 
@@ -996,6 +1010,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
 
     return 0;
 }
