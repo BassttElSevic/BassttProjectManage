@@ -1,0 +1,33 @@
+#line 1 "D:\\LIANXI\\untitled\\resource.rc"
+
+IDI_MAIN_ICON ICON "EYE_256x256.ico"
+
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEFLAGSMASK 0x3fL
+FILEFLAGS 0x0L
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "BassttElSevic"
+            VALUE "FileDescription", "Task Manager - Modern Task Management Application"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "TaskManager"
+            VALUE "LegalCopyright", "Copyright (C) 2026 BassttElSevic"
+            VALUE "OriginalFilename", "untitled.exe"
+            VALUE "ProductName", "Task Manager"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
