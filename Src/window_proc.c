@@ -361,8 +361,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             // 启动脉冲动画定时器
             SetTimer(hwnd, ID_TIMER_PULSE, 50, NULL);
 
-            // 启动日历动画定时器
-            SetTimer(hwnd, ID_TIMER_CALENDAR_GLOW, 30, NULL);
+            // 启动日历动画定时器 - 改为16ms约60fps
+            SetTimer(hwnd, ID_TIMER_CALENDAR_GLOW, 16, NULL);
         }
         break;
 
@@ -610,7 +610,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     break;
 
                 case ID_TIMER_CALENDAR_GLOW:
-                    // 日历发光动画更新
+                    // 日历动画更新 - 合并GLOW和SELECT逻辑，统一控制
                     {
                         // 保存之前的状态
                         float prevGlow = calendarAnim.glowIntensity;
@@ -619,11 +619,12 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
                         UpdateCalendarAnimation(hwnd);
 
-                        // 只在状态有明显变化时才重绘
+                        // 使用更小的重绘阈值提高响应性，当有任何动画活动时始终更新
                         bool needRedraw = false;
-                        if (fabsf(calendarAnim.glowIntensity - prevGlow) > 0.01f) needRedraw = true;
+                        if (fabsf(calendarAnim.glowIntensity - prevGlow) > 0.005f) needRedraw = true;
                         if (calendarAnim.isSelecting != prevSelecting) needRedraw = true;
-                        if (fabsf(calendarAnim.selectPulse - prevPulse) > 0.01f) needRedraw = true;
+                        if (fabsf(calendarAnim.selectPulse - prevPulse) > 0.005f) needRedraw = true;
+                        if (calendarAnim.isSelecting || calendarAnim.selectPulse > 0) needRedraw = true;
 
                         if (needRedraw && hCalendar) {
                             RECT rcCal;
@@ -639,6 +640,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     }
                     break;
 
+                // ID_TIMER_CALENDAR_SELECT 已合并到 ID_TIMER_CALENDAR_GLOW
+                // 不再需要单独处理
+                /*
                 case ID_TIMER_CALENDAR_SELECT:
                     // 日历选择动画更新
                     if (calendarAnim.isSelecting) {
@@ -664,6 +668,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                         }
                     }
                     break;
+                */
             }
         }
         break;

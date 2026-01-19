@@ -298,31 +298,33 @@ CalendarAnim calendarAnim = {0.0f, 1.0f, 0.0f, false, false, 0, 0.0f, 0.0f};
 
 // 绘制日历发光边框效果 - 优化版本，更精致柔和
 void DrawCalendarGlow(HDC hdc, RECT* prc, CalendarAnim* anim) {
-    // 计算总发光强度
+    // 计算总发光强度 - 使用平滑混合而非取最大值
     float totalGlow = anim->glowIntensity;
     if (anim->isSelecting) {
-        // 选择时的脉冲更显著
-        totalGlow = fmaxf(totalGlow, anim->selectPulse * 0.7f);
+        // 选择时的脉冲更显著，使用平滑混合
+        totalGlow = totalGlow * 0.3f + anim->selectPulse * 0.7f;
     }
 
     if (totalGlow < 0.02f) return;
 
-    // 添加呼吸灯效果 - 轻微的脉动
-    float breathingEffect = sinf(anim->breathPhase) * 0.15f + 0.85f;
+    // 添加呼吸灯效果 - 减弱波动幅度
+    float breathingEffect = sinf(anim->breathPhase) * 0.08f + 0.92f;
     totalGlow *= breathingEffect;
 
-    // 第一层：核心发光（最亮）
-    if (totalGlow > 0.3f) {
+    // 第一层：核心发光（最亮）- 提高阈值，使用渐变透明度
+    if (totalGlow > 0.4f) {
+        float coreAlpha = (totalGlow - 0.4f) / 0.6f;  // 0.4-1.0 映射到 0-1
         COLORREF coreColor = BlendColors(COLOR_PRIMARY, COLOR_PRIMARY_GLOW, 0.6f);
-        HPEN hPen = CreatePen(PS_SOLID, 2, coreColor);
+        COLORREF blendedCore = BlendColors(COLOR_BG_CARD, coreColor, coreAlpha * 0.8f);
+        HPEN hPen = CreatePen(PS_SOLID, 2, blendedCore);
         HBRUSH hOldBrush = SelectObject(hdc, GetStockObject(NULL_BRUSH));
         HPEN hOldPen = SelectObject(hdc, hPen);
 
         RECT rcCore = {
-            prc->left - 3,
-            prc->top - 3,
-            prc->right + 3,
-            prc->bottom + 3
+            prc->left - 2,
+            prc->top - 2,
+            prc->right + 2,
+            prc->bottom + 2
         };
         RoundRect(hdc, rcCore.left, rcCore.top, rcCore.right, rcCore.bottom, 12, 12);
 
@@ -331,12 +333,12 @@ void DrawCalendarGlow(HDC hdc, RECT* prc, CalendarAnim* anim) {
         DeleteObject(hPen);
     }
 
-    // 第二层：主发光层（柔和）
-    int glowLayers = 3 + (int)(totalGlow * 4);
+    // 第二层：主发光层（柔和）- 减少层数，使用更平滑的衰减
+    int glowLayers = 2 + (int)(totalGlow * 3);
     for (int i = 1; i <= glowLayers; i++) {
-        // 指数衰减的透明度曲线 - 使发光更柔和自然
+        // 使用三次方衰减曲线 - 更平滑自然
         float layerProgress = (float)i / (float)(glowLayers + 1);
-        float layerAlpha = totalGlow * (1.0f - layerProgress * layerProgress) * 0.2f;
+        float layerAlpha = totalGlow * (1.0f - layerProgress * layerProgress * layerProgress) * 0.15f;
 
         // 根据选择状态选择发光颜色
         COLORREF glowColor;
@@ -354,11 +356,12 @@ void DrawCalendarGlow(HDC hdc, RECT* prc, CalendarAnim* anim) {
         HBRUSH hOldBrush = SelectObject(hdc, GetStockObject(NULL_BRUSH));
         HPEN hOldPen = SelectObject(hdc, hPen);
 
+        // 减小每层的扩展距离
         RECT rcGlow = {
-            prc->left - i * 3 - 3,
-            prc->top - i * 3 - 3,
-            prc->right + i * 3 + 3,
-            prc->bottom + i * 3 + 3
+            prc->left - i * 2 - 2,
+            prc->top - i * 2 - 2,
+            prc->right + i * 2 + 2,
+            prc->bottom + i * 2 + 2
         };
         RoundRect(hdc, rcGlow.left, rcGlow.top, rcGlow.right, rcGlow.bottom,
                   12 + i * 2, 12 + i * 2);
@@ -371,7 +374,7 @@ void DrawCalendarGlow(HDC hdc, RECT* prc, CalendarAnim* anim) {
     // 第三层：柔光效果（非常淡）
     if (totalGlow > 0.2f) {
         for (int i = glowLayers + 1; i <= glowLayers + 2; i++) {
-            float layerAlpha = totalGlow * 0.08f * (1.0f - (float)(i - glowLayers) / 3.0f);
+            float layerAlpha = totalGlow * 0.06f * (1.0f - (float)(i - glowLayers) / 3.0f);
             COLORREF blendedColor = BlendColors(COLOR_BG_CARD, COLOR_PRIMARY_LIGHT, layerAlpha);
 
             HPEN hPen = CreatePen(PS_SOLID, 1, blendedColor);
@@ -379,10 +382,10 @@ void DrawCalendarGlow(HDC hdc, RECT* prc, CalendarAnim* anim) {
             HPEN hOldPen = SelectObject(hdc, hPen);
 
             RECT rcSoft = {
-                prc->left - i * 3 - 3,
-                prc->top - i * 3 - 3,
-                prc->right + i * 3 + 3,
-                prc->bottom + i * 3 + 3
+                prc->left - i * 2 - 2,
+                prc->top - i * 2 - 2,
+                prc->right + i * 2 + 2,
+                prc->bottom + i * 2 + 2
             };
             RoundRect(hdc, rcSoft.left, rcSoft.top, rcSoft.right, rcSoft.bottom,
                       12 + i * 2, 12 + i * 2);
@@ -396,17 +399,27 @@ void DrawCalendarGlow(HDC hdc, RECT* prc, CalendarAnim* anim) {
 
 // 绘制日历装饰粒子效果 - 优化版本，更优雅
 void DrawCalendarParticles(HDC hdc, RECT* prc, CalendarAnim* anim) {
-    // 只在选择动画早期显示粒子
-    if (anim->selectPulse <= 0 || anim->selectPulse > 0.6f) return;
+    // 扩展粒子显示时间范围
+    if (anim->selectPulse <= 0 || anim->selectPulse > 0.85f) return;
 
     SetBkMode(hdc, TRANSPARENT);
 
-    // 粒子数量随动画进度变化
+    // 减少粒子数量以提高性能
     float progress = anim->selectPulse;
-    int numParticles = 12;  // 更多粒子，但更透明
+    int numParticles = 8;
 
-    // 快速衰减的alpha值
-    float particleAlpha = (0.6f - progress) * (0.6f - progress) * 0.8f;
+    // 渐入渐出的alpha衰减曲线
+    float particleAlpha;
+    if (progress < 0.15f) {
+        // 渐入阶段
+        particleAlpha = progress / 0.15f * 0.7f;
+    } else if (progress > 0.7f) {
+        // 渐出阶段
+        particleAlpha = (0.85f - progress) / 0.15f * 0.7f;
+    } else {
+        // 稳定显示阶段
+        particleAlpha = 0.7f;
+    }
     if (particleAlpha < 0) particleAlpha = 0;
 
     int centerX = (prc->left + prc->right) / 2;
@@ -414,13 +427,16 @@ void DrawCalendarParticles(HDC hdc, RECT* prc, CalendarAnim* anim) {
 
     for (int i = 0; i < numParticles; i++) {
         float angle = (float)i / (float)numParticles * 6.28318f + anim->shimmerPhase;
-        float radius = 20.0f + progress * 35.0f;
+        
+        // 使用EaseOutCubic缓动函数使粒子扩散更自然
+        float easedProgress = EaseOutCubic(progress);
+        float radius = 20.0f + easedProgress * 40.0f;
 
         int px = centerX + (int)(cosf(angle) * radius);
         int py = centerY + (int)(sinf(angle) * radius);
 
-        // 粒子大小从3递减到1
-        int particleSize = 3 - (int)(progress * 2);
+        // 粒子大小变化更平滑
+        int particleSize = 3 - (int)(progress * 1.5f);
         if (particleSize < 1) particleSize = 1;
 
         // 粒子颜色渐变
@@ -444,7 +460,8 @@ void DrawCalendarParticles(HDC hdc, RECT* prc, CalendarAnim* anim) {
 
 // 绘制日历闪光效果 - 新增，增加视觉层次
 void DrawCalendarShimmer(HDC hdc, RECT* prc, CalendarAnim* anim) {
-    if (anim->glowIntensity < 0.1f && anim->selectPulse < 0.2f) return;
+    // 降低触发阈值
+    if (anim->glowIntensity < 0.05f && anim->selectPulse < 0.1f) return;
 
     SetBkMode(hdc, TRANSPARENT);
 
@@ -454,18 +471,29 @@ void DrawCalendarShimmer(HDC hdc, RECT* prc, CalendarAnim* anim) {
         shimmerIntensity = fmaxf(shimmerIntensity, anim->selectPulse * 0.5f);
     }
 
-    if (shimmerIntensity < 0.05f) return;
+    // 提前检查强度，避免不必要的资源分配
+    if (shimmerIntensity < 0.03f) {
+        return;
+    }
 
-    // 绘制2条闪光线
+    // 添加裁剪区域限制闪光线在日历区域内
+    HRGN hClipRgn = CreateRoundRectRgn(prc->left, prc->top, prc->right, prc->bottom, 12, 12);
+    SelectClipRgn(hdc, hClipRgn);
+
+    // 使用对角线移动效果，更自然的闪光
     float phase = anim->shimmerPhase;
+    int width = prc->right - prc->left;
+    int height = prc->bottom - prc->top;
+    
+    // 对角线闪光从左上到右下
+    #define SHIMMER_SPEED_MULTIPLIER 50.0f
+    float offset = fmodf(phase * SHIMMER_SPEED_MULTIPLIER, (float)(width + height));
+    float x1 = prc->left + offset - height;
+    float y1 = prc->top;
+    float x2 = prc->left + offset;
+    float y2 = prc->bottom;
 
-    // 斜线1
-    float x1 = prc->left + cosf(phase) * (prc->right - prc->left) * 0.5f;
-    float y1 = prc->top - sinf(phase) * (prc->bottom - prc->top) * 0.5f;
-    float x2 = x1 + (prc->right - prc->left) * 0.3f;
-    float y2 = y1 + (prc->bottom - prc->top) * 0.3f;
-
-    COLORREF shimmerColor = BlendColors(COLOR_BG_CARD, RGB(255, 255, 255), shimmerIntensity * 0.4f);
+    COLORREF shimmerColor = BlendColors(COLOR_BG_CARD, RGB(255, 255, 255), shimmerIntensity * 0.5f);
     HPEN hPen = CreatePen(PS_SOLID, 2, shimmerColor);
     HPEN hOldPen = SelectObject(hdc, hPen);
 
@@ -474,13 +502,17 @@ void DrawCalendarShimmer(HDC hdc, RECT* prc, CalendarAnim* anim) {
 
     SelectObject(hdc, hOldPen);
     DeleteObject(hPen);
+
+    SelectClipRgn(hdc, NULL);
+    DeleteObject(hClipRgn);
+    #undef SHIMMER_SPEED_MULTIPLIER
 }
 
 // 更新日历动画状态 - 优化版本，更平滑
 void UpdateCalendarAnimation(HWND hwnd) {
-    // 更新悬停发光效果 - 平滑的渐入/渐出
+    // 更新悬停发光效果 - 减小步长实现更平滑过渡
     float targetGlow = calendarAnim.isHovered ? 0.8f : 0.0f;
-    float glowStep = 0.06f;
+    float glowStep = 0.04f;  // 从0.06f改为0.04f
 
     if (calendarAnim.glowIntensity < targetGlow) {
         calendarAnim.glowIntensity += glowStep;
@@ -494,28 +526,35 @@ void UpdateCalendarAnimation(HWND hwnd) {
         }
     }
 
-    // 更新选择动画 - 更快的动画
+    // 更新选择动画 - 统一使用20步，使用EaseInOutCubic缓动曲线
     if (calendarAnim.isSelecting) {
         calendarAnim.selectAnimStep++;
-        // 使用更平滑的缓动函数
-        float progress = (float)calendarAnim.selectAnimStep / 12.0f;
-        calendarAnim.selectPulse = EaseOutQuad(fminf(progress, 1.0f));
+        // 使用EaseInOutCubic更平滑的缓动函数
+        float progress = (float)calendarAnim.selectAnimStep / 20.0f;
+        calendarAnim.selectPulse = EaseInOutCubic(fminf(progress, 1.0f));
 
-        if (calendarAnim.selectAnimStep >= 12) {
+        if (calendarAnim.selectAnimStep >= 20) {
             calendarAnim.isSelecting = false;
             calendarAnim.selectAnimStep = 0;
-            calendarAnim.selectPulse = 0.0f;
+            // 选择动画结束后让脉冲平滑衰减而非立即设为0
+            // calendarAnim.selectPulse 将在后续逐渐衰减
+        }
+    } else if (calendarAnim.selectPulse > 0) {
+        // 平滑衰减脉冲
+        calendarAnim.selectPulse -= 0.05f;
+        if (calendarAnim.selectPulse < 0) {
+            calendarAnim.selectPulse = 0;
         }
     }
 
-    // 更新呼吸灯效果 - 缓慢脉动
-    calendarAnim.breathPhase += 0.02f;
+    // 更新呼吸灯效果 - 减慢速度
+    calendarAnim.breathPhase += 0.015f;  // 从0.02f改为0.015f
     if (calendarAnim.breathPhase > 6.28318f) {
         calendarAnim.breathPhase -= 6.28318f;
     }
 
-    // 更新闪光效果相位
-    calendarAnim.shimmerPhase += 0.04f;
+    // 更新闪光效果相位 - 减慢速度
+    calendarAnim.shimmerPhase += 0.025f;  // 从0.04f改为0.025f
     if (calendarAnim.shimmerPhase > 6.28318f) {
         calendarAnim.shimmerPhase -= 6.28318f;
     }
@@ -527,8 +566,8 @@ void TriggerCalendarSelectAnimation(HWND hwnd) {
     calendarAnim.selectAnimStep = 0;
     calendarAnim.selectPulse = 0.0f;
 
-    // 启动选择动画定时器
-    SetTimer(hwnd, ID_TIMER_CALENDAR_SELECT, 16, NULL);  // 更快的帧率（约60fps）
+    // 移除单独的SELECT定时器调用，由GLOW定时器统一控制
+    // SetTimer(hwnd, ID_TIMER_CALENDAR_SELECT, 16, NULL);
 }
 
 // 绘制带动画效果的日历边框 - 综合所有效果
