@@ -475,3 +475,7 @@ cd cmake-build-debug
 ## 📄 License / 许可证
 
 MIT License
+
+# 特别感谢 
+
+ - **感谢蝴蝶老师（QQ1506643677）！，感谢她精妙的画技和愿意把这份稿子充当封面的慷慨**
