@@ -450,6 +450,11 @@ cd cmake-build-debug
 
 ## 📝 Changelog / 更新日志
 
+### v1.2.0 (2025-01-19)
+- **📝 Code Documentation / 代码注释** - Added detailed Chinese comments for all calendar animation functions / 为所有日历动画函数添加了详细的中文注释
+- **🎯 Animation Analysis / 动画分析** - Documented issues and improvement suggestions for calendar animations / 记录了日历动画的问题点和改进建议
+- **📖 Developer Friendly / 开发者友好** - Function comments include: purpose, parameters, implementation principle, and known issues / 函数注释包含：功能说明、参数说明、实现原理、已知问题
+
 ### v1.1.0 (2025-01-18)
 - **🔧 Code Refactoring / 代码重构** - Refactored from single-file to modular multi-file structure / 将单文件架构重构为模块化多文件结构
 - **🐛 Bug Fix / Bug修复** - Fixed animation struct linking error (LNK2019) / 修复动画结构体的链接错误（LNK2019）
