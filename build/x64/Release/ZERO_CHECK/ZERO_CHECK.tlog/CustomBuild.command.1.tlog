@@ -1,0 +1,10 @@
+^D:\LIANXI\UNTITLED\BUILD\CMAKEFILES\0692E31B6F7847BCD944F1E5CFFBCC95\GENERATE.STAMP.RULE
+setlocal
+C:\ST\STM32CubeCLT_1.19.0\CMake\bin\cmake.exe -SD:/LIANXI/untitled -BD:/LIANXI/untitled/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/LIANXI/untitled/build/untitled.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
