@@ -1,1 +1,0 @@
-/usr/bin/cc -Wl,--dependency-file=CMakeFiles/untitled.dir/link.d CMakeFiles/untitled.dir/main.c.o CMakeFiles/untitled.dir/Src/task_manager.c.o CMakeFiles/untitled.dir/Src/animation.c.o CMakeFiles/untitled.dir/Src/ui_controls.c.o CMakeFiles/untitled.dir/Src/window_proc.c.o -o untitled
