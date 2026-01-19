@@ -465,21 +465,20 @@ void DrawCalendarShimmer(HDC hdc, RECT* prc, CalendarAnim* anim) {
 
     SetBkMode(hdc, TRANSPARENT);
 
-    // 添加裁剪区域限制闪光线在日历区域内
-    HRGN hClipRgn = CreateRoundRectRgn(prc->left, prc->top, prc->right, prc->bottom, 12, 12);
-    SelectClipRgn(hdc, hClipRgn);
-
     // 闪光光线效果 - 只在有明显发光时显示
     float shimmerIntensity = anim->glowIntensity * 0.3f;
     if (anim->isSelecting) {
         shimmerIntensity = fmaxf(shimmerIntensity, anim->selectPulse * 0.5f);
     }
 
+    // 提前检查强度，避免不必要的资源分配
     if (shimmerIntensity < 0.03f) {
-        SelectClipRgn(hdc, NULL);
-        DeleteObject(hClipRgn);
         return;
     }
+
+    // 添加裁剪区域限制闪光线在日历区域内
+    HRGN hClipRgn = CreateRoundRectRgn(prc->left, prc->top, prc->right, prc->bottom, 12, 12);
+    SelectClipRgn(hdc, hClipRgn);
 
     // 使用对角线移动效果，更自然的闪光
     float phase = anim->shimmerPhase;
@@ -487,7 +486,8 @@ void DrawCalendarShimmer(HDC hdc, RECT* prc, CalendarAnim* anim) {
     int height = prc->bottom - prc->top;
     
     // 对角线闪光从左上到右下
-    float offset = fmodf(phase * 50.0f, (float)(width + height));
+    #define SHIMMER_SPEED_MULTIPLIER 50.0f
+    float offset = fmodf(phase * SHIMMER_SPEED_MULTIPLIER, (float)(width + height));
     float x1 = prc->left + offset - height;
     float y1 = prc->top;
     float x2 = prc->left + offset;
@@ -505,6 +505,7 @@ void DrawCalendarShimmer(HDC hdc, RECT* prc, CalendarAnim* anim) {
 
     SelectClipRgn(hdc, NULL);
     DeleteObject(hClipRgn);
+    #undef SHIMMER_SPEED_MULTIPLIER
 }
 
 // 更新日历动画状态 - 优化版本，更平滑
