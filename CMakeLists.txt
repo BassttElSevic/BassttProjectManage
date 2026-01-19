@@ -3,6 +3,15 @@ project(untitled C)
 
 set(CMAKE_C_STANDARD 11)
 
+
+
+# 静态链接运行时库（添加在这里）
+if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static")
+endif()
+
 if(MSVC)
     add_compile_options(/utf-8)
 endif()

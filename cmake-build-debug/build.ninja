@@ -51,7 +51,8 @@ build cmake_object_order_depends_target_untitled: phony || .
 
 build CMakeFiles\untitled.dir\main.c.obj: C_COMPILER__untitled_unscanned_Debug D$:\LIANXI\untitled\main.c || cmake_object_order_depends_target_untitled
   CONFIG = Debug
-  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MDd /utf-8
+  DEFINES = -D_WIN32_WINNT=0x0600
+  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MTd /utf-8
   INCLUDES = -ID:\LIANXI\untitled\Inc
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir
@@ -60,7 +61,8 @@ build CMakeFiles\untitled.dir\main.c.obj: C_COMPILER__untitled_unscanned_Debug D
 
 build CMakeFiles\untitled.dir\Src\task_manager.c.obj: C_COMPILER__untitled_unscanned_Debug D$:\LIANXI\untitled\Src\task_manager.c || cmake_object_order_depends_target_untitled
   CONFIG = Debug
-  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MDd /utf-8
+  DEFINES = -D_WIN32_WINNT=0x0600
+  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MTd /utf-8
   INCLUDES = -ID:\LIANXI\untitled\Inc
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir\Src
@@ -69,7 +71,8 @@ build CMakeFiles\untitled.dir\Src\task_manager.c.obj: C_COMPILER__untitled_unsca
 
 build CMakeFiles\untitled.dir\Src\animation.c.obj: C_COMPILER__untitled_unscanned_Debug D$:\LIANXI\untitled\Src\animation.c || cmake_object_order_depends_target_untitled
   CONFIG = Debug
-  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MDd /utf-8
+  DEFINES = -D_WIN32_WINNT=0x0600
+  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MTd /utf-8
   INCLUDES = -ID:\LIANXI\untitled\Inc
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir\Src
@@ -78,7 +81,8 @@ build CMakeFiles\untitled.dir\Src\animation.c.obj: C_COMPILER__untitled_unscanne
 
 build CMakeFiles\untitled.dir\Src\ui_controls.c.obj: C_COMPILER__untitled_unscanned_Debug D$:\LIANXI\untitled\Src\ui_controls.c || cmake_object_order_depends_target_untitled
   CONFIG = Debug
-  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MDd /utf-8
+  DEFINES = -D_WIN32_WINNT=0x0600
+  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MTd /utf-8
   INCLUDES = -ID:\LIANXI\untitled\Inc
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir\Src
@@ -87,7 +91,8 @@ build CMakeFiles\untitled.dir\Src\ui_controls.c.obj: C_COMPILER__untitled_unscan
 
 build CMakeFiles\untitled.dir\Src\window_proc.c.obj: C_COMPILER__untitled_unscanned_Debug D$:\LIANXI\untitled\Src\window_proc.c || cmake_object_order_depends_target_untitled
   CONFIG = Debug
-  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MDd /utf-8
+  DEFINES = -D_WIN32_WINNT=0x0600
+  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -std:c11 -MTd /utf-8
   INCLUDES = -ID:\LIANXI\untitled\Inc
   OBJECT_DIR = CMakeFiles\untitled.dir
   OBJECT_FILE_DIR = CMakeFiles\untitled.dir\Src
@@ -96,6 +101,7 @@ build CMakeFiles\untitled.dir\Src\window_proc.c.obj: C_COMPILER__untitled_unscan
 
 build CMakeFiles\untitled.dir\resource.rc.res: RC_COMPILER__untitled_unscanned_Debug D$:\LIANXI\untitled\resource.rc || cmake_object_order_depends_target_untitled
   CONFIG = Debug
+  DEFINES = -D_WIN32_WINNT=0x0600
   DEP_FILE = CMakeFiles\untitled.dir\resource.rc.res.d
   FLAGS = -DWIN32 -D_DEBUG
   INCLUDES = -I D:\LIANXI\untitled\Inc
@@ -114,9 +120,9 @@ build CMakeFiles\untitled.dir\resource.rc.res: RC_COMPILER__untitled_unscanned_D
 
 build untitled.exe: C_EXECUTABLE_LINKER__untitled_Debug CMakeFiles\untitled.dir\main.c.obj CMakeFiles\untitled.dir\Src\task_manager.c.obj CMakeFiles\untitled.dir\Src\animation.c.obj CMakeFiles\untitled.dir\Src\ui_controls.c.obj CMakeFiles\untitled.dir\Src\window_proc.c.obj CMakeFiles\untitled.dir\resource.rc.res
   CONFIG = Debug
-  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -MDd
+  FLAGS = /DWIN32 /D_WINDOWS /Ob0 /Od -MTd
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:windows
-  LINK_LIBRARIES = comctl32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+  LINK_LIBRARIES = comctl32.lib  uxtheme.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
   OBJECT_DIR = CMakeFiles\untitled.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
