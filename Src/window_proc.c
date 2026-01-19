@@ -437,8 +437,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                     selectedDate = pSelChange->stSelStart;
                     UpdateListView();
 
-                    // 触发日历选择动画
-                    TriggerCalendarSelectAnimation(hwnd);
+                    // 已移除日历选择动画 - 会导致诡异闪动
+                    // TriggerCalendarSelectAnimation(hwnd);
                 }
                 else if (pHdr->code == MCN_GETDAYSTATE) {
                     LPNMDAYSTATE pDayState = (LPNMDAYSTATE)lParam;
