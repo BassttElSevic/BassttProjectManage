@@ -450,6 +450,11 @@ cd cmake-build-debug
 
 ## 📝 Changelog / 更新日志
 
+### v1.2.1 (2025-01-19)
+- **🗑️ Remove Calendar Glow Effect / 移除日历发光效果** - Removed the ugly calendar edge glow animation / 移除了难看的日历边缘发光动画
+- **🗑️ Remove Calendar Click Flash / 移除日历点击闪动** - Removed the flickering effect when clicking calendar dates / 移除了点击日历日期时的诡异闪动效果
+- **✨ Cleaner UI / 更简洁的界面** - Calendar now uses native hover effect only, much cleaner / 日历现在只使用原生悬停效果，更加简洁
+
 ### v1.2.0 (2025-01-19)
 - **📝 Code Documentation / 代码注释** - Added detailed Chinese comments for all calendar animation functions / 为所有日历动画函数添加了详细的中文注释
 - **🎯 Animation Analysis / 动画分析** - Documented issues and improvement suggestions for calendar animations / 记录了日历动画的问题点和改进建议
