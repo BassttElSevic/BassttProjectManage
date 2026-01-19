@@ -1,0 +1,3 @@
+/home/runner/work/BassttProjectManage/BassttProjectManage/build/CMakeFiles/untitled.dir
+/home/runner/work/BassttProjectManage/BassttProjectManage/build/CMakeFiles/edit_cache.dir
+/home/runner/work/BassttProjectManage/BassttProjectManage/build/CMakeFiles/rebuild_cache.dir
