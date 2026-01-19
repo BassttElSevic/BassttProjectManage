@@ -1,8 +1,30 @@
 #include "Inc/task_manager.h"
+#include <windows.h>
+#include <shlwapi.h>
+
+// Function pointer types for DPI awareness functions
+typedef HRESULT(WINAPI *SetProcessDpiAwarenessFunc)(int);
+typedef BOOL(WINAPI *SetProcessDPIAwareFunc)(void);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    // 启用高DPI支持，使界面更清晰
-    SetProcessDPIAware();
+    // Enable high DPI support for clearer interface
+    HMODULE hShcore = LoadLibrary(TEXT("shcore.dll"));
+    if (hShcore) {
+        SetProcessDpiAwarenessFunc setDpiAwareness = (SetProcessDpiAwarenessFunc)GetProcAddress(hShcore, "SetProcessDpiAwareness");
+        if (setDpiAwareness) {
+            setDpiAwareness(2); // Set to Per-Monitor DPI Awareness
+        }
+        FreeLibrary(hShcore);
+    } else {
+        // Fallback to SetProcessDPIAware for older systems - load dynamically
+        HMODULE hUser32 = GetModuleHandle(TEXT("user32.dll"));
+        if (hUser32) {
+            SetProcessDPIAwareFunc setDPIAware = (SetProcessDPIAwareFunc)GetProcAddress(hUser32, "SetProcessDPIAware");
+            if (setDPIAware) {
+                setDPIAware();
+            }
+        }
+    }
 
     const TCHAR CLASS_NAME[] = L"TaskManagerClass";
 

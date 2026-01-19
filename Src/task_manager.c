@@ -7,8 +7,7 @@ const TCHAR* SAVE_FILE = L"tasks.dat";
 const TCHAR* TYPE_STRINGS[] = { L"每日任务", L"中期任务", L"长期任务" };
 
 void LoadTasks() {
-    FILE *fp = NULL;
-    _wfopen_s(&fp, SAVE_FILE, L"rb");
+    FILE *fp = _wfopen(SAVE_FILE, L"rb");
     if (fp) {
         fread(&task_count, sizeof(int), 1, fp);
         fread(tasks, sizeof(Task), task_count, fp);
@@ -17,8 +16,7 @@ void LoadTasks() {
 }
 
 void SaveTasks() {
-    FILE *fp = NULL;
-    _wfopen_s(&fp, SAVE_FILE, L"wb");
+    FILE *fp = _wfopen(SAVE_FILE, L"wb");
     if (fp) {
         fwrite(&task_count, sizeof(int), 1, fp);
         fwrite(tasks, sizeof(Task), task_count, fp);
@@ -86,7 +84,7 @@ void UpdateListView() {
             ListView_SetItemText(hListView, idx, 2, tasks[i].is_important ? L"★" : L"");
             ListView_SetItemText(hListView, idx, 3, tasks[i].is_urgent ? L"🔥" : L"");
 
-            StringCchPrintf(textBuffer, 256, L"%04d-%02d-%02d",
+            _snwprintf(textBuffer, 256, L"%04d-%02d-%02d",
                 tasks[i].date.wYear, tasks[i].date.wMonth, tasks[i].date.wDay);
             ListView_SetItemText(hListView, idx, 4, textBuffer);
         }
@@ -105,7 +103,7 @@ void UpdateListView() {
             ListView_SetItemText(hListViewLong, idx, 2, tasks[i].is_important ? L"★" : L"");
             ListView_SetItemText(hListViewLong, idx, 3, tasks[i].is_urgent ? L"🔥" : L"");
 
-            StringCchPrintf(textBuffer, 256, L"%04d-%02d-%02d",
+            _snwprintf(textBuffer, 256, L"%04d-%02d-%02d",
                 tasks[i].date.wYear, tasks[i].date.wMonth, tasks[i].date.wDay);
             ListView_SetItemText(hListViewLong, idx, 4, textBuffer);
         }

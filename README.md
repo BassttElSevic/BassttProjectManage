@@ -123,6 +123,7 @@ flowchart LR
 - **💎 Material Design Style** - Fresh blue-white color scheme
 - **🎪 Rounded Card Layout** - Left-right split card design
 - **✨ Smooth Animations** - Button click and hover effects
+- **✨ Enhanced Calendar Animations** - Multi-layer glow, breathing effect, shimmer
 - **🖼️ HD Icon Support** - 256x256 custom eye icon
 - **🎯 High DPI Ready** - Support for high-resolution displays
 - **🌈 Alternating Row Colors** - ListView beautification with custom selection
@@ -344,6 +345,7 @@ flowchart LR
 - **💎 Material Design风格** - 清新的蓝白配色方案
 - **🎪 圆角卡片布局** - 左右分栏的卡片式设计
 - **✨ 平滑动画效果** - 按钮点击动画和悬停效果
+- **✨ 强化日历动画** - 多层次辉光、呼吸效果、闪光动画
 - **🖼️ 高清图标支持** - 256x256自定义眼睛图标
 - **🎯 高DPI适配** - 支持高分辨率显示器
 - **🌈 交替行颜色** - ListView美化和自定义选中状态

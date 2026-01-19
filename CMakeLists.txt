@@ -10,6 +10,9 @@ endif()
 # 添加头文件目录
 include_directories(Inc)
 
+# Define the minimum required Windows version
+add_definitions(-D_WIN32_WINNT=0x0600)
+
 # 收集所有源文件
 set(SOURCES
     main.c
@@ -23,5 +26,5 @@ set(SOURCES
 add_executable(untitled WIN32 ${SOURCES} resource.rc)
 
 if(WIN32)
-    target_link_libraries(untitled comctl32)
+    target_link_libraries(untitled comctl32 uxtheme)
 endif()
