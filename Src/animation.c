@@ -448,7 +448,7 @@ void DrawCalendarGlow(HDC hdc, RECT* prc, CalendarAnim* anim) {
 // ============================================
 void DrawCalendarParticles(HDC hdc, RECT* prc, CalendarAnim* anim) {
     // 只在选择动画早期显示粒子
-    if (anim->selectPulse <= 0 || anim->selectPulse > 0.6f) return;
+    if (anim->selectPulse <= 0 || anim->selectPulse > 1.6f) return;
 
     SetBkMode(hdc, TRANSPARENT);
 
@@ -564,14 +564,26 @@ void UpdateCalendarAnimation(HWND hwnd) {
         }
     }
 
-    // 更新选择动画 - 更快的动画
+    // 更新选择动画 - 分为上升和下降两个阶段，避免爆闪
     if (calendarAnim.isSelecting) {
         calendarAnim.selectAnimStep++;
-        // 使用更平滑的缓动函数
-        float progress = (float)calendarAnim.selectAnimStep / 12.0f;
-        calendarAnim.selectPulse = EaseOutQuad(fminf(progress, 1.0f));
 
-        if (calendarAnim.selectAnimStep >= 12) {
+        // 总帧数70帧：前35帧上升，后35帧下降
+        int riseFrames = 1135;   // 上升阶段帧数
+        int fallFrames = 1135;   // 下降阶段帧数
+        int totalFrames = riseFrames + fallFrames;
+
+        if (calendarAnim.selectAnimStep <= riseFrames) {
+            // 上升阶段：0 -> 1
+            float progress = (float)calendarAnim.selectAnimStep / (float)riseFrames;
+            calendarAnim.selectPulse = EaseOutQuad(progress);
+        } else {
+            // 下降阶段：1 -> 0（平滑回落）
+            float progress = (float)(calendarAnim.selectAnimStep - riseFrames) / (float)fallFrames;
+            calendarAnim.selectPulse = 1.0f - EaseOutQuad(progress);
+        }
+
+        if (calendarAnim.selectAnimStep >= totalFrames) {
             calendarAnim.isSelecting = false;
             calendarAnim.selectAnimStep = 0;
             calendarAnim.selectPulse = 0.0f;

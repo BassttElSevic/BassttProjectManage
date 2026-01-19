@@ -95,27 +95,21 @@ static void DrawDecorativeCircles(HDC hdc, RECT* prc) {
 // 绘制日历动画效果
 // ============================================
 static void DrawCalendarAnimation(HDC hdc, HWND hwndParent) {
+    // 已移除日历边缘发光效果 - 悬停时日期变色已经足够
+    // 如需恢复，取消下面的注释
+    /*
     if (!hCalendar) return;
 
     RECT rcCal;
     GetWindowRect(hCalendar, &rcCal);
     MapWindowPoints(HWND_DESKTOP, hwndParent, (LPPOINT)&rcCal, 2);
 
-    // 扩展矩形以包含发光效果
-    RECT rcGlow = {
-        rcCal.left - 15,
-        rcCal.top - 15,
-        rcCal.right + 15,
-        rcCal.bottom + 15
-    };
-
-    // 绘制日历的动画边框和发光效果
     DrawCalendarGlow(hdc, &rcCal, &calendarAnim);
 
-    // 如果正在选择动画中，绘制粒子效果
     if (calendarAnim.isSelecting || calendarAnim.selectPulse > 0) {
         DrawCalendarParticles(hdc, &rcCal, &calendarAnim);
     }
+    */
 }
 
 // Windows Procedure
