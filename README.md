@@ -58,15 +58,17 @@ flowchart TD
         Q --> Y{Animation Type}
         Y -->|Button Click| Z[Update BtnClickAnim]
         Y -->|Hover Effect| AA[Redraw Button]
+        Y -->|Pulse Effect| AB[Decorative Circles]
+        Y -->|Card Glow| AC[Card Shadow Animation]
         Z --> AA
     end
 
     subgraph Data Persistence
-        AB[(tasks.dat)] -->|Read| F
-        V -->|Write| AB
+        AD[(tasks.dat)] -->|Read| F
+        V -->|Write| AD
     end
 
-    S --> AC[🔚 Program End]
+    S --> AE[🔚 Program End]
 ```
 
 ### 🔄 Module Interaction Diagram
@@ -120,10 +122,11 @@ flowchart LR
 - **⚠️ Overdue Reminders** - Auto-detect and display overdue tasks
 
 #### 🎨 Modern UI Design
-- **💎 Material Design Style** - Fresh blue-white color scheme
-- **🎪 Rounded Card Layout** - Left-right split card design
-- **✨ Smooth Animations** - Button click and hover effects
-- **✨ Enhanced Calendar Animations** - Multi-layer glow, breathing effect, shimmer
+- **💎 Material Design Style** - Elegant purple-blue gradient color scheme
+- **🎪 Rounded Card Layout** - Left-right split card design with shadow effects
+- **✨ Smooth Animations** - Button click ripple effects and hover transitions
+- **🌈 Gradient Background** - Soft gradient from light purple to light pink
+- **🎯 Decorative Elements** - Animated pulsing circles for visual appeal
 - **🖼️ HD Icon Support** - 256x256 custom eye icon
 - **🎯 High DPI Ready** - Support for high-resolution displays
 - **🌈 Alternating Row Colors** - ListView beautification with custom selection
@@ -141,15 +144,21 @@ flowchart LR
 - **🎯 Modern Fonts** - Microsoft YaHei font, clear and readable
 - **💻 CMake Build System** - Cross-platform build support
 - **📦 Embedded Resources** - Icons and version info compiled into exe
-- **🎪 Theme Support** - Windows Explorer style
+- **🎪 Theme Support** - Windows Explorer style with UxTheme
 - **🧩 Modular Architecture** - Code separated by function for easy maintenance
+- **⚡ Static Linking** - Runtime library statically linked for portability
 
 ### 🎨 Color Scheme
-- Main Background: Light Gray-Blue (#F5F7FB)
+- Gradient Top: Light Purple-Blue (#ECF0FD)
+- Gradient Bottom: Light Pink (#FCF7F8)
+- Primary Color: Indigo (#6366F1)
+- Primary Hover: Deep Purple (#4F46E5)
+- Secondary Color: Cyan (#06B6D4)
+- Danger Color: Rose (#F43F5E)
+- Success Color: Green (#22C55E)
+- Warning Color: Amber (#F59E0B)
 - Card Background: Pure White (#FFFFFF)
-- Primary Color: Bright Blue (#3B82F6)
-- Hover Color: Deep Blue (#2563EB)
-- Danger Color: Red (#EF4444)
+- Text Primary: Slate 800 (#1E293B)
 
 ### 🛠️ Build and Run
 
@@ -188,19 +197,19 @@ cd cmake-build-debug
 ### 📁 Project Structure
 
 ```
-├── main.c                  # Program entry
+├── main.c                  # Program entry, DPI support, window creation
 ├── CMakeLists.txt          # CMake build configuration
-├── resource.rc             # Windows resource file
+├── resource.rc             # Windows resource file (icon, version info)
 ├── README.md               # Project documentation
 │
 ├── Inc/                    # Header files directory
-│   └── task_manager.h      # Main header (types, constants, declarations)
+│   └── task_manager.h      # Main header (types, constants, color definitions, declarations)
 │
 ├── Src/                    # Source files directory
-│   ├── task_manager.c      # Task management core (CRUD, persistence)
-│   ├── animation.c         # Animation system (button click, easing)
-│   ├── ui_controls.c       # UI controls (button subclass, ListView)
-│   └── window_proc.c       # Window procedure (messages, controls)
+│   ├── task_manager.c      # Task management core (CRUD, persistence, date comparison)
+│   ├── animation.c         # Animation system (easing functions, ripple effects, gradients)
+│   ├── ui_controls.c       # UI controls (button subclass, gradient buttons, ListView)
+│   └── window_proc.c       # Window procedure (messages, controls, decorative drawing)
 │
 ├── EYE_256x256.ico         # High-res app icon
 ├── EYE_128x128.ico         # Medium-size icon
@@ -211,12 +220,12 @@ cd cmake-build-debug
 
 | Module | File | Description |
 |--------|------|-------------|
-| **Entry** | `main.c` | WinMain entry, window class registration, message loop |
-| **Header** | `Inc/task_manager.h` | Type definitions (Task, BtnClickAnim), constants, declarations |
-| **Task Manager** | `Src/task_manager.c` | Task CRUD, date comparison, file I/O |
-| **Animation** | `Src/animation.c` | Button click animation, easing functions, rounded rectangles |
-| **UI Controls** | `Src/ui_controls.c` | Button subclassing, hover effects, ListView customization |
-| **Window Proc** | `Src/window_proc.c` | Window message handling, control creation, custom drawing |
+| **Entry** | `main.c` | WinMain entry, High DPI support, window class registration, message loop |
+| **Header** | `Inc/task_manager.h` | Type definitions (Task, BtnClickAnim, CardAnim, CalendarAnim), color constants, global variables, function prototypes |
+| **Task Manager** | `Src/task_manager.c` | Task CRUD, date comparison (IsSameDate, CompareDates), file I/O (LoadTasks, SaveTasks) |
+| **Animation** | `Src/animation.c` | Easing functions (EaseOutQuad, EaseOutCubic, EaseOutElastic), ripple effects, color blending, gradient drawing |
+| **UI Controls** | `Src/ui_controls.c` | Button subclassing with hover effects, gradient button drawing, ListView row height, focus animations |
+| **Window Proc** | `Src/window_proc.c` | Window message handling, control creation, gradient background, decorative circles, custom button drawing |
 
 ### 💾 Data Storage
 
@@ -280,15 +289,17 @@ flowchart TD
         Q --> Y{动画类型}
         Y -->|按钮点击| Z[更新 BtnClickAnim]
         Y -->|悬停效果| AA[重绘按钮]
+        Y -->|脉冲效果| AB[装饰性圆形]
+        Y -->|卡片发光| AC[阴影动画]
         Z --> AA
     end
 
     subgraph 数据持久化
-        AB[(tasks.dat)] -->|读取| F
-        V -->|写入| AB
+        AD[(tasks.dat)] -->|读取| F
+        V -->|写入| AD
     end
 
-    S --> AC[🔚 程序结束]
+    S --> AE[🔚 程序结束]
 ```
 
 ### 🔄 模块交互图
@@ -342,10 +353,11 @@ flowchart LR
 - **⚠️ 逾期任务提醒** - 自动检测并显示过期未完成任务
 
 #### 🎨 现代化UI设计
-- **💎 Material Design风格** - 清新的蓝白配色方案
-- **🎪 圆角卡片布局** - 左右分栏的卡片式设计
-- **✨ 平滑动画效果** - 按钮点击动画和悬停效果
-- **✨ 强化日历动画** - 多层次辉光、呼吸效果、闪光动画
+- **💎 Material Design风格** - 优雅的紫蓝渐变配色方案
+- **🎪 圆角卡片布局** - 左右分栏的卡片式设计，带阴影效果
+- **✨ 平滑动画效果** - 按钮点击涟漪动画和悬停过渡效果
+- **🌈 渐变背景** - 从淡紫到淡粉的柔和渐变
+- **🎯 装饰性元素** - 动态脉冲圆形装饰，增强视觉效果
 - **🖼️ 高清图标支持** - 256x256自定义眼睛图标
 - **🎯 高DPI适配** - 支持高分辨率显示器
 - **🌈 交替行颜色** - ListView美化和自定义选中状态
@@ -363,15 +375,21 @@ flowchart LR
 - **🎯 现代化字体** - 微软雅黑字体，清晰易读
 - **💻 CMake构建系统** - 跨平台构建支持
 - **📦 资源文件嵌入** - 图标和版本信息直接编译到exe中
-- **🎪 主题样式支持** - 使用Windows Explorer样式
+- **🎪 主题样式支持** - 使用Windows Explorer样式和UxTheme
 - **🧩 模块化架构** - 代码按功能分离，便于维护和扩展
+- **⚡ 静态链接** - 运行时库静态链接，便于分发
 
 ### 🎨 配色方案
-- 主背景：淡灰蓝 (#F5F7FB)
-- 卡片背景：纯白 (#FFFFFF) 
-- 主色调：明亮蓝 (#3B82F6)
-- 悬停色：深蓝 (#2563EB)
-- 危险色：红色 (#EF4444)
+- 渐变顶部：淡紫蓝 (#ECF0FD)
+- 渐变底部：淡粉色 (#FCF7F8)
+- 主色调：靛蓝紫 (#6366F1)
+- 悬停色：深紫色 (#4F46E5)
+- 次要色：青色 (#06B6D4)
+- 危险色：玫瑰红 (#F43F5E)
+- 成功色：翠绿色 (#22C55E)
+- 警告色：琥珀色 (#F59E0B)
+- 卡片背景：纯白 (#FFFFFF)
+- 主要文字：石板灰 (#1E293B)
 
 ### 🛠️ 构建和运行
 
@@ -410,19 +428,19 @@ cd cmake-build-debug
 ### 📁 项目结构
 
 ```
-├── main.c                  # 程序入口
+├── main.c                  # 程序入口、DPI支持、窗口创建
 ├── CMakeLists.txt          # CMake构建配置
-├── resource.rc             # Windows资源文件
+├── resource.rc             # Windows资源文件（图标、版本信息）
 ├── README.md               # 项目说明文档
 │
 ├── Inc/                    # 头文件目录
-│   └── task_manager.h      # 主头文件（类型定义、常量、函数声明）
+│   └── task_manager.h      # 主头文件（类型定义、常量、颜色定义、函数声明）
 │
 ├── Src/                    # 源文件目录
-│   ├── task_manager.c      # 任务管理核心逻辑（增删改查、数据持久化）
-│   ├── animation.c         # 动画系统（按钮点击动画、缓动函数）
-│   ├── ui_controls.c       # UI控件（按钮子类化、ListView行高设置）
-│   └── window_proc.c       # 窗口过程（消息处理、控件创建）
+│   ├── task_manager.c      # 任务管理核心逻辑（增删改查、数据持久化、日期比较）
+│   ├── animation.c         # 动画系统（缓动函数、涟漪效果、渐变绘制）
+│   ├── ui_controls.c       # UI控件（按钮子类化、渐变按钮、ListView行高）
+│   └── window_proc.c       # 窗口过程（消息处理、控件创建、装饰性绘制）
 │
 ├── EYE_256x256.ico         # 高清应用图标
 ├── EYE_128x128.ico         # 中等尺寸图标
@@ -433,12 +451,12 @@ cd cmake-build-debug
 
 | 模块 | 文件 | 功能描述 |
 |------|------|----------|
-| **入口** | `main.c` | WinMain入口、窗口类注册、消息循环 |
-| **头文件** | `Inc/task_manager.h` | 类型定义（Task、BtnClickAnim等）、常量、全局变量声明、函数原型 |
-| **任务管理** | `Src/task_manager.c` | 任务的增删查、日期比较、文件读写 |
-| **动画系统** | `Src/animation.c` | 按钮点击动画、缓动函数、圆角矩形绘制 |
-| **UI控件** | `Src/ui_controls.c` | 按钮子类化处理、悬停效果、ListView自定义 |
-| **窗口处理** | `Src/window_proc.c` | 窗口消息处理、控件创建与布局、自绘按钮 |
+| **入口** | `main.c` | WinMain入口、高DPI支持、窗口类注册、消息循环 |
+| **头文件** | `Inc/task_manager.h` | 类型定义（Task、BtnClickAnim、CardAnim、CalendarAnim等）、颜色常量、全局变量声明、函数原型 |
+| **任务管理** | `Src/task_manager.c` | 任务的增删查、日期比较（IsSameDate、CompareDates）、文件读写（LoadTasks、SaveTasks） |
+| **动画系统** | `Src/animation.c` | 缓动函数（EaseOutQuad、EaseOutCubic、EaseOutElastic）、涟漪效果、颜色混合、渐变绘制 |
+| **UI控件** | `Src/ui_controls.c` | 按钮子类化处理、悬停效果、渐变按钮绘制、ListView自定义、焦点动画 |
+| **窗口处理** | `Src/window_proc.c` | 窗口消息处理、控件创建与布局、渐变背景绘制、装饰性圆形、自绘按钮 |
 
 ### 💾 数据存储
 
